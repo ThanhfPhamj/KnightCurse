@@ -10,7 +10,6 @@ public class EnemyHealth : MonoBehaviour
     public int hp = 99999999;
     public Animator anim;
     public EnemyEffectController fx;
-
     Transform player;
 
     // =========================
@@ -40,6 +39,8 @@ public class EnemyHealth : MonoBehaviour
     void Awake()
     {
         anim = GetComponent<Animator>();
+
+        fx = GetComponent<EnemyEffectController>();
     }
 
     // =========================================================
@@ -81,7 +82,10 @@ public class EnemyHealth : MonoBehaviour
         // bắn event HIT
         EnemyEvents.Hit(this, dmg);
 
-        fx?.StartCoroutine(fx.Flash());
+        if (fx != null)
+        {
+            StartCoroutine(fx.Flash());
+        }
 
         if (hp <= 0)
         {

@@ -343,6 +343,7 @@ MonoBehaviour:
   combo3Knockback: 8
   airAttackKnockback: 10
   comboResetTime: 0.8
+  maxHealth: 100
 --- !u!1 &191591307
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,7 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd6ac2a46eeee1444a79d55f6380f063, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitEffect: {fileID: 797342024}
+  hitEffect: {fileID: 393020019}
   effectPoint: {fileID: 393020020}
   headPoint: {fileID: 1202344450}
   bodyPoint: {fileID: 797342025}

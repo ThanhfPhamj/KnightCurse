@@ -55,6 +55,7 @@ public class PlayerController : MonoBehaviour
     [Header("Combat")]
     public BoxCollider2D hitBox;
     public LayerMask enemyLayer;
+    Vector3 hitBoxLocalPos;
 
     [Header("Damage")]
     public int combo1Damage = 5;
@@ -79,6 +80,17 @@ public class PlayerController : MonoBehaviour
     Coroutine attackRoutine;
 
     // =========================================================
+    // HEALTH
+    // =========================================================
+
+    [Header("Health")]
+    public int maxHealth = 100;
+
+    int currentHealth;
+
+    bool isDead;
+
+    // =========================================================
     // INPUT
     // =========================================================
 
@@ -99,10 +111,17 @@ public class PlayerController : MonoBehaviour
         sr = GetComponent<SpriteRenderer>();
 
         rb.gravityScale = gravityScale;
+
+        currentHealth = maxHealth;
+
+        hitBoxLocalPos = hitBox.transform.localPosition;
     }
 
     void Update()
     {
+        if (isDead)
+            return;
+
         ReadInput();
 
         GroundCheck();
@@ -141,6 +160,14 @@ public class PlayerController : MonoBehaviour
                 StartAttack();
             }
         }
+        // =====================================================
+        // TEST DIE
+        // =====================================================
+
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            TakeDamage(999);
+        }
     }
 
     // =========================================================
@@ -165,6 +192,15 @@ public class PlayerController : MonoBehaviour
             facing = Mathf.Sign(move);
 
         sr.flipX = facing < 0;
+        // =====================================================
+        // Flip hitbox theo hướng nhân vật
+        // =====================================================
+
+        Vector3 pos = hitBox.transform.localPosition;
+
+        pos.x = Mathf.Abs(hitBoxLocalPos.x) * facing;
+
+        hitBox.transform.localPosition = pos;
     }
 
     // =========================================================
@@ -358,86 +394,6 @@ public class PlayerController : MonoBehaviour
         return 0.15f;
     }
 
-    // =========================================================
-    // DAMAGE
-    // =========================================================
-
-    //void DealDamage()
-    //{
-    //    if (hitBox == null)
-    //        return;
-
-    //    Collider2D[] hits =
-    //        Physics2D.OverlapBoxAll(
-    //            hitBox.bounds.center,
-    //            hitBox.bounds.size,
-    //            0,
-    //            enemyLayer
-    //        );
-
-    //    foreach (Collider2D hit in hits)
-    //    {
-    //        EnemyHealth enemy =
-    //            hit.GetComponent<EnemyHealth>();
-
-    //        if (enemy == null)
-    //            continue;
-
-    //        int damage = GetDamage();
-
-    //        enemy.TakeDamage(damage);
-
-    //        Debug.Log("Hit Enemy: " + damage);
-
-    //        Vector2 hitPos = hit.ClosestPoint(hitBox.bounds.center);
-
-    //        // =================================================
-    //        // COMBO 2 = STUN
-    //        // =================================================
-
-    //        if (!isAirAttack && comboStep == 2)
-    //        {
-
-    //            Vector2 dir = (enemy.transform.position - transform.position).normalized;
-    //            dir.y = 1f;
-    //            enemy.ApplyFreeze(1.2f);
-    //        }
-
-    //        // =================================================
-    //        // COMBO 3 = HEAVY KNOCKBACK
-    //        // =================================================
-
-    //        if (!isAirAttack && comboStep == 3)
-    //        {
-    //            Vector2 dir =
-    //                (
-    //                    enemy.transform.position -
-    //                    transform.position
-    //                ).normalized;
-    //            enemy.ApplyShock(0.35f);
-    //        }
-
-    //        // =================================================
-    //        // AIR ATTACK = LAUNCH
-    //        // =================================================
-
-    //        if (isAirAttack)
-    //        {
-    //            Vector2 dir =
-    //                (
-    //                    enemy.transform.position -
-    //                    transform.position
-    //                ).normalized;
-
-    //            dir.y = 1f;
-
-    //            enemy.ApplyKnockback(
-    //                dir.normalized,
-    //                airAttackKnockback
-    //            );
-    //        }
-    //    }
-    //}
     void DealDamage()
     {
         if (hitBox == null)
@@ -480,7 +436,7 @@ public class PlayerController : MonoBehaviour
             if (!isAirAttack && comboStep == 3)
             {
                 enemy.ApplyShock(0.35f);
-            }            
+            }
         }
     }
     int GetDamage()
@@ -555,7 +511,39 @@ public class PlayerController : MonoBehaviour
                 groundLayer
             );
     }
+    // =========================================================
+    // TAKE DAMAGE
+    // =========================================================
 
+    /// <summary>
+    /// Gọi hàm này khi player bị enemy đánh
+    /// </summary>
+    public void TakeDamage(int damage)
+    {
+        if (isDead)
+            return;
+
+        currentHealth -= damage;
+
+        Debug.Log("Player HP: " + currentHealth);
+
+        if (currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+    // =========================================================
+    // DIE
+    // =========================================================
+
+    void Die()
+    {
+        isDead = true;
+
+        rb.velocity = Vector2.zero;
+
+        anim.SetTrigger("Die");
+    }
     // =========================================================
     // GIZMOS
     // =========================================================
